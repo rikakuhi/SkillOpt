@@ -214,38 +214,112 @@
     }
 
     .hero-ledger {
+      position: relative;
+      overflow: hidden;
       width: 100%;
-      background: rgba(248, 250, 247, 0.92);
-      color: var(--ink);
-      border: 1px solid rgba(248, 250, 247, 0.6);
+      padding: 24px;
+      color: #f8faf7;
+      background:
+        linear-gradient(135deg, rgba(46, 123, 63, 0.94), rgba(17, 24, 32, 0.98) 54%, rgba(17, 24, 32, 0.96)),
+        var(--black);
+      border: 1px solid rgba(244, 197, 66, 0.44);
+      border-radius: 8px;
       box-shadow: var(--shadow);
     }
 
-    .ledger-row {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 18px;
-      padding: 15px 16px;
-      border-bottom: 1px solid rgba(21, 25, 31, 0.16);
+    .hero-ledger::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(90deg, rgba(244, 197, 66, 0.12) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(244, 197, 66, 0.08) 1px, transparent 1px);
+      background-size: 26px 26px;
+      opacity: 0.34;
+      pointer-events: none;
     }
 
-    .ledger-row:last-child {
-      border-bottom: 0;
+    .hero-ledger > * {
+      position: relative;
     }
 
-    .ledger-label {
-      color: var(--muted);
+    .ledger-kicker {
+      display: inline-flex;
+      align-items: center;
+      min-height: 28px;
+      padding: 5px 9px;
+      color: var(--ink);
+      background: #f4c542;
+      border-radius: 6px;
       font-family: var(--mono);
       font-size: 0.71rem;
+      font-weight: 800;
       text-transform: uppercase;
+    }
+
+    .ledger-hero {
+      display: flex;
+      align-items: baseline;
+      gap: 8px;
+      margin-top: 18px;
     }
 
     .ledger-value {
       font-family: var(--display);
-      font-size: 1.95rem;
+      font-size: 5.85rem;
+      font-weight: 800;
+      line-height: 0.9;
+      white-space: nowrap;
+    }
+
+    .ledger-denominator {
+      color: rgba(248, 250, 247, 0.64);
+      font-family: var(--display);
+      font-size: 2.65rem;
       font-weight: 800;
       line-height: 1;
-      white-space: nowrap;
+    }
+
+    .ledger-copy {
+      max-width: 320px;
+      margin: 12px 0 0;
+      color: rgba(248, 250, 247, 0.84);
+      font-size: 1.02rem;
+      line-height: 1.45;
+    }
+
+    .ledger-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 0;
+      margin-top: 22px;
+      border-top: 1px solid rgba(248, 250, 247, 0.22);
+    }
+
+    .ledger-stat {
+      padding-top: 14px;
+    }
+
+    .ledger-stat + .ledger-stat {
+      padding-left: 16px;
+      border-left: 1px solid rgba(248, 250, 247, 0.18);
+    }
+
+    .ledger-stat span {
+      display: block;
+      color: rgba(248, 250, 247, 0.62);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+    }
+
+    .ledger-stat b {
+      display: block;
+      margin-top: 6px;
+      color: #f4c542;
+      font-family: var(--display);
+      font-size: 2.25rem;
+      line-height: 1;
     }
 
     main {
@@ -1020,11 +1094,18 @@
         grid-template-columns: 1fr;
       }
 
-      .ledger-row,
       .mini-item,
       .detail-metrics,
       .chart-caption {
         grid-template-columns: 1fr;
+      }
+
+      .ledger-value {
+        font-size: 4.35rem;
+      }
+
+      .ledger-denominator {
+        font-size: 2.05rem;
       }
 
       .chart-toolbar,
@@ -1074,18 +1155,24 @@
         </div>
       </div>
 
-      <aside class="hero-ledger" aria-label="Key numbers">
-        <div class="ledger-row">
-          <span class="ledger-label">Best or tied-best in 52 model x benchmark / harness x benchmark settings</span>
-          <span class="ledger-value">52/52</span>
+      <aside class="hero-ledger" aria-label="Key result summary">
+        <span class="ledger-kicker">Main result</span>
+        <div class="ledger-hero" aria-label="52 out of 52 settings">
+          <span class="ledger-value">52</span>
+          <span class="ledger-denominator">/52</span>
         </div>
-        <div class="ledger-row">
-          <span class="ledger-label">Frozen target models</span>
-          <span class="ledger-value">7</span>
-        </div>
-        <div class="ledger-row">
-          <span class="ledger-label">Benchmarks</span>
-          <span class="ledger-value">6</span>
+        <p class="ledger-copy">
+          Best or tied-best in every model x benchmark and harness x benchmark setting.
+        </p>
+        <div class="ledger-stats" aria-label="Evaluation coverage">
+          <div class="ledger-stat">
+            <span>Frozen target models</span>
+            <b>7</b>
+          </div>
+          <div class="ledger-stat">
+            <span>Benchmarks</span>
+            <b>6</b>
+          </div>
         </div>
       </aside>
     </div>
