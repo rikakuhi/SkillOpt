@@ -1,0 +1,2034 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SkillOpt | Executive Strategy for Self-Evolving Agent Skills</title>
+  <meta name="description" content="Project webpage for SkillOpt, a text-space optimizer that trains reusable natural-language skills for frozen language agents.">
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Literata:opsz,wght@7..72,400;7..72,600;7..72,700;7..72,800&family=Newsreader:opsz,wght@6..72,600;6..72,700;6..72,800&display=swap');
+
+    :root {
+      --paper: #f7f8f3;
+      --paper-2: #ebeef0;
+      --ink: #15191f;
+      --muted: #5d6672;
+      --quiet: #7b8490;
+      --line: #cfd4d8;
+      --line-strong: #2d333b;
+      --panel: #ffffff;
+      --panel-warm: #fff9e8;
+      --blue: #2359b6;
+      --teal: #0b7974;
+      --red: #bb352d;
+      --gold: #b17300;
+      --green: #2e7b3f;
+      --black: #0d1117;
+      --shadow: 0 18px 45px rgba(18, 24, 31, 0.12);
+      --mono: "IBM Plex Mono", "SFMono-Regular", Consolas, monospace;
+      --serif: "Literata", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+      --display: "Newsreader", "Literata", Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        linear-gradient(rgba(21, 25, 31, 0.045) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(21, 25, 31, 0.035) 1px, transparent 1px),
+        var(--paper);
+      background-size: 42px 42px;
+      font-family: var(--serif);
+      line-height: 1.55;
+      letter-spacing: 0;
+    }
+
+    a {
+      color: inherit;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 4px;
+    }
+
+    img {
+      max-width: 100%;
+      display: block;
+    }
+
+    .topbar {
+      position: fixed;
+      z-index: 20;
+      top: 0;
+      left: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      padding: 14px 28px;
+      color: #f8faf7;
+      background: rgba(13, 17, 23, 0.78);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+      backdrop-filter: blur(12px);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+    }
+
+    .brandmark {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .brandmark::before {
+      content: "";
+      width: 13px;
+      height: 13px;
+      background: linear-gradient(135deg, var(--red) 0 48%, var(--gold) 48% 66%, var(--teal) 66%);
+      border: 1px solid rgba(255, 255, 255, 0.8);
+      transform: rotate(45deg);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      flex-wrap: wrap;
+      gap: 8px 16px;
+    }
+
+    .nav a {
+      color: rgba(248, 250, 247, 0.86);
+      text-decoration: none;
+      border-bottom: 1px solid transparent;
+    }
+
+    .nav a:hover {
+      color: #ffffff;
+      border-color: var(--gold);
+    }
+
+    .hero {
+      position: relative;
+      min-height: 74vh;
+      display: grid;
+      align-items: end;
+      padding: 112px 28px 54px;
+      color: #f8faf7;
+      overflow: hidden;
+      background:
+        linear-gradient(90deg, rgba(13, 17, 23, 0.98) 0%, rgba(13, 17, 23, 0.94) 58%, rgba(13, 17, 23, 0.8) 100%),
+        linear-gradient(135deg, transparent 0 49.5%, rgba(244, 197, 66, 0.22) 49.5% 50.35%, transparent 50.35%),
+        linear-gradient(90deg, rgba(248, 250, 247, 0.08) 1px, transparent 1px),
+        linear-gradient(0deg, rgba(248, 250, 247, 0.07) 1px, transparent 1px),
+        #111820;
+      background-size: auto, 720px 720px, 36px 36px, 36px 36px, auto;
+    }
+
+    .hero-inner {
+      width: min(1160px, 100%);
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(260px, 0.45fr);
+      gap: 36px;
+      align-items: end;
+    }
+
+    .kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 8px 11px;
+      color: #111820;
+      background: #f4c542;
+      border: 1px solid rgba(13, 17, 23, 0.35);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .hero h1 {
+      margin: 22px 0 12px;
+      font-family: var(--display);
+      font-size: 5.4rem;
+      line-height: 0.88;
+      letter-spacing: 0;
+      max-width: 820px;
+    }
+
+    .hero-subtitle {
+      max-width: 760px;
+      margin: 0;
+      color: rgba(248, 250, 247, 0.88);
+      font-size: 1.35rem;
+      line-height: 1.42;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 10px 15px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-decoration: none;
+      border: 1px solid currentColor;
+      border-radius: 6px;
+      transition: transform 160ms ease, background 160ms ease, color 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button.primary {
+      color: #111820;
+      background: #f8faf7;
+      border-color: #f8faf7;
+    }
+
+    .button.secondary {
+      color: #f8faf7;
+      background: rgba(248, 250, 247, 0.08);
+      border-color: rgba(248, 250, 247, 0.48);
+    }
+
+    .hero-ledger {
+      width: 100%;
+      background: rgba(248, 250, 247, 0.92);
+      color: var(--ink);
+      border: 1px solid rgba(248, 250, 247, 0.6);
+      box-shadow: var(--shadow);
+    }
+
+    .ledger-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 18px;
+      padding: 15px 16px;
+      border-bottom: 1px solid rgba(21, 25, 31, 0.16);
+    }
+
+    .ledger-row:last-child {
+      border-bottom: 0;
+    }
+
+    .ledger-label {
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.71rem;
+      text-transform: uppercase;
+    }
+
+    .ledger-value {
+      font-family: var(--display);
+      font-size: 1.95rem;
+      font-weight: 800;
+      line-height: 1;
+      white-space: nowrap;
+    }
+
+    main {
+      width: min(1160px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .section {
+      padding: 74px 0 0;
+    }
+
+    .section-header {
+      display: grid;
+      grid-template-columns: minmax(200px, 0.42fr) minmax(0, 1fr);
+      gap: 48px;
+      align-items: start;
+      margin-bottom: 26px;
+      border-top: 2px solid var(--line-strong);
+      padding-top: 18px;
+    }
+
+    .section-eyebrow {
+      font-family: var(--mono);
+      color: var(--red);
+      font-size: 0.78rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    h2 {
+      margin: 0;
+      font-family: var(--display);
+      font-size: 2.55rem;
+      line-height: 1.04;
+      letter-spacing: 0;
+    }
+
+    .section-lede {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-size: 1.05rem;
+      max-width: 740px;
+    }
+
+    .manifesto {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      gap: 18px;
+      align-items: stretch;
+    }
+
+    .statement {
+      padding: 30px;
+      background: var(--black);
+      color: #f8faf7;
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .statement h3,
+    .panel h3,
+    .result-card h3 {
+      margin: 0 0 12px;
+      font-family: var(--display);
+      font-size: 1.45rem;
+      line-height: 1.12;
+      letter-spacing: 0;
+    }
+
+    .statement p {
+      margin: 0;
+      color: rgba(248, 250, 247, 0.82);
+      font-size: 1.04rem;
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px;
+      margin-top: 24px;
+    }
+
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 30px;
+      padding: 6px 9px;
+      color: var(--ink);
+      background: #f4c542;
+      border: 1px solid rgba(248, 250, 247, 0.2);
+      border-radius: 6px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .step {
+      min-height: 128px;
+      padding: 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .step strong {
+      display: block;
+      margin-bottom: 8px;
+      font-family: var(--mono);
+      color: var(--blue);
+      font-size: 0.78rem;
+      text-transform: uppercase;
+    }
+
+    .step p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .figure-frame {
+      margin-top: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .figure-frame img {
+      width: 100%;
+      background: #ffffff;
+    }
+
+    .caption {
+      padding: 13px 16px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.55;
+    }
+
+    .teaser-showcase {
+      position: relative;
+      margin-top: -28px;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .video-showcase {
+      margin-top: -28px;
+      margin-bottom: 22px;
+    }
+
+    .video-frame {
+      margin: 18px 0 0;
+      padding: 14px;
+      background: #0d1117;
+      border: 1px solid var(--line-strong);
+      border-radius: 6px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+    }
+
+    .video-frame video {
+      width: 100%;
+      aspect-ratio: 16 / 9;
+      display: block;
+      background: #0d1117;
+      border-radius: 4px;
+    }
+
+    .teaser-heading {
+      display: grid;
+      grid-template-columns: 160px 1fr;
+      gap: 20px;
+      align-items: start;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .teaser-heading span {
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .teaser-heading h2 {
+      font-size: 2.25rem;
+    }
+
+    .teaser-figure {
+      margin: 18px 0 0;
+      padding: 14px;
+      background: #ffffff;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      overflow-x: auto;
+    }
+
+    .teaser-figure img {
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+    }
+
+    .teaser-caption {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.73rem;
+      line-height: 1.55;
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .result-card {
+      min-height: 202px;
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .result-card.featured {
+      color: #f8faf7;
+      background: var(--teal);
+      border-color: var(--teal);
+    }
+
+    .metric {
+      display: block;
+      margin: 10px 0 6px;
+      font-family: var(--display);
+      font-size: 3rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .result-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .result-card.featured p {
+      color: rgba(248, 250, 247, 0.84);
+    }
+
+    .model-gallery {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(172px, 1fr));
+      gap: 10px;
+      margin-top: 16px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+    }
+
+    .model-card {
+      min-width: 172px;
+      padding: 15px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 10px 22px rgba(18, 24, 31, 0.08);
+    }
+
+    .model-card.highlight {
+      color: #f8faf7;
+      background: var(--black);
+      border-color: var(--black);
+    }
+
+    .model-card strong {
+      display: block;
+      min-height: 38px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.25;
+    }
+
+    .score-pair {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin: 12px 0;
+      color: var(--quiet);
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      text-transform: uppercase;
+    }
+
+    .score-pair b {
+      display: block;
+      margin-top: 3px;
+      color: var(--ink);
+      font-size: 0.95rem;
+    }
+
+    .model-card.highlight .score-pair {
+      color: rgba(248, 250, 247, 0.58);
+    }
+
+    .model-card.highlight .score-pair b {
+      color: #f8faf7;
+    }
+
+    .gain-meter {
+      height: 9px;
+      background: rgba(21, 25, 31, 0.12);
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .model-card.highlight .gain-meter {
+      background: rgba(248, 250, 247, 0.16);
+    }
+
+    .gain-meter i {
+      display: block;
+      height: 100%;
+      width: var(--w);
+      background: linear-gradient(90deg, var(--gold), var(--green));
+      border-radius: inherit;
+    }
+
+    .gain-label {
+      display: block;
+      margin-top: 8px;
+      color: var(--green);
+      font-family: var(--display);
+      font-size: 1.55rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .model-card.highlight .gain-label {
+      color: #f4c542;
+    }
+
+    .result-note {
+      margin: 10px 0 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.55;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 820px;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      line-height: 1.35;
+    }
+
+    th {
+      position: sticky;
+      top: 0;
+      z-index: 1;
+      padding: 12px 14px;
+      text-align: left;
+      color: #f8faf7;
+      background: var(--black);
+      border-bottom: 1px solid var(--line-strong);
+      font-weight: 600;
+    }
+
+    td {
+      padding: 12px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+    }
+
+    tr:last-child td {
+      border-bottom: 0;
+    }
+
+    tbody tr:nth-child(even) td {
+      background: rgba(235, 238, 240, 0.62);
+    }
+
+    .num {
+      text-align: right;
+      white-space: nowrap;
+    }
+
+    .gain {
+      color: var(--green);
+      font-weight: 600;
+    }
+
+    .heat {
+      color: var(--ink);
+      background:
+        linear-gradient(90deg, rgba(46, 123, 63, 0.22) 0%, rgba(46, 123, 63, 0.22) calc(var(--heat) * 1%), transparent calc(var(--heat) * 1%)) !important;
+      font-weight: 600;
+    }
+
+    .heat-avg {
+      color: #f8faf7;
+      background: var(--teal) !important;
+      font-weight: 700;
+    }
+
+    .bar-cell {
+      min-width: 170px;
+    }
+
+    .bar-track {
+      height: 10px;
+      background: #dce1e4;
+      border-radius: 999px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--teal), var(--green));
+    }
+
+    .method-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .panel {
+      padding: 22px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .panel.accent-blue {
+      border-top: 5px solid var(--blue);
+    }
+
+    .panel.accent-red {
+      border-top: 5px solid var(--red);
+    }
+
+    .panel.accent-gold {
+      border-top: 5px solid var(--gold);
+    }
+
+    .panel.accent-green {
+      border-top: 5px solid var(--green);
+    }
+
+    .panel p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.96rem;
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 18px 20px;
+      color: var(--ink);
+      background: var(--panel-warm);
+      border: 1px solid #e0c76f;
+      border-left: 7px solid var(--gold);
+      border-radius: 8px;
+      font-size: 1rem;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+      gap: 16px;
+      align-items: stretch;
+    }
+
+    .evolution-shell {
+      display: grid;
+      grid-template-columns: minmax(0, 1.42fr) minmax(300px, 0.58fr);
+      gap: 16px;
+      align-items: start;
+    }
+
+    .evolution-chart {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .chart-toolbar {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 16px 18px 12px;
+      border-bottom: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+    }
+
+    .chart-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 9px 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      white-space: nowrap;
+    }
+
+    .legend-item::before {
+      content: "";
+      width: 22px;
+      height: 3px;
+      background: var(--legend);
+      border-radius: 999px;
+    }
+
+    .chart-scroller {
+      overflow-x: auto;
+      padding: 10px 14px 0;
+    }
+
+    .skill-chart {
+      width: 100%;
+      min-width: 760px;
+      height: auto;
+      display: block;
+      font-family: var(--mono);
+    }
+
+    .chart-grid {
+      stroke: rgba(21, 25, 31, 0.13);
+      stroke-width: 1;
+    }
+
+    .chart-axis {
+      stroke: rgba(21, 25, 31, 0.42);
+      stroke-width: 1.2;
+    }
+
+    .chart-label {
+      fill: var(--quiet);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .line-train,
+    .line-selection {
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      stroke-width: 4;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .line-train {
+      stroke: var(--teal);
+    }
+
+    .line-selection {
+      stroke: var(--blue);
+    }
+
+    .chart-point {
+      cursor: pointer;
+      outline: none;
+    }
+
+    .chart-point circle:not(.hit) {
+      fill: var(--panel);
+      stroke-width: 3;
+      transition: r 140ms ease, fill 140ms ease, stroke-width 140ms ease;
+      vector-effect: non-scaling-stroke;
+    }
+
+    .chart-point .hit {
+      fill: transparent;
+      stroke: transparent;
+      stroke-width: 26;
+    }
+
+    .chart-point[data-state="accepted"] circle:not(.hit) {
+      stroke: var(--green);
+    }
+
+    .chart-point[data-state="rejected"] circle:not(.hit) {
+      stroke: var(--red);
+    }
+
+    .chart-point[data-state="slow"] circle:not(.hit) {
+      stroke: var(--gold);
+    }
+
+    .chart-point[data-state="baseline"] circle:not(.hit) {
+      stroke: var(--line-strong);
+    }
+
+    .chart-point.is-active circle:not(.hit),
+    .chart-point:hover circle:not(.hit),
+    .chart-point:focus circle:not(.hit) {
+      r: 7;
+      fill: #f4c542;
+      stroke-width: 4;
+    }
+
+    .chart-caption {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 12px 18px 16px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      line-height: 1.55;
+    }
+
+    .evolution-detail {
+      min-height: 438px;
+      padding: 20px;
+      color: #f8faf7;
+      background: var(--black);
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      box-shadow: var(--shadow);
+    }
+
+    .detail-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 14px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: rgba(248, 250, 247, 0.7);
+      text-transform: uppercase;
+    }
+
+    .detail-badge {
+      display: inline-flex;
+      align-items: center;
+      min-height: 26px;
+      padding: 5px 8px;
+      color: var(--ink);
+      background: #f4c542;
+      border-radius: 6px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .evolution-detail h3 {
+      margin: 0 0 14px;
+      font-family: var(--display);
+      font-size: 1.9rem;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .detail-metrics {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin: 0 0 16px;
+    }
+
+    .detail-metric {
+      padding: 12px;
+      background: rgba(248, 250, 247, 0.08);
+      border: 1px solid rgba(248, 250, 247, 0.16);
+      border-radius: 8px;
+    }
+
+    .detail-metric span {
+      display: block;
+      color: rgba(248, 250, 247, 0.62);
+      font-family: var(--mono);
+      font-size: 0.67rem;
+      text-transform: uppercase;
+    }
+
+    .detail-metric b {
+      display: block;
+      margin-top: 4px;
+      font-family: var(--display);
+      font-size: 1.62rem;
+      line-height: 1;
+    }
+
+    .detail-summary {
+      margin: 0 0 14px;
+      color: rgba(248, 250, 247, 0.8);
+      font-size: 0.96rem;
+    }
+
+    .detail-edits {
+      display: grid;
+      gap: 9px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .detail-edits li {
+      padding: 10px 11px;
+      color: rgba(248, 250, 247, 0.84);
+      background: rgba(248, 250, 247, 0.08);
+      border-left: 4px solid var(--gold);
+      border-radius: 6px;
+      font-size: 0.92rem;
+      line-height: 1.42;
+    }
+
+    .evolution-footnotes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .evolution-note {
+      padding: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .evolution-note b {
+      display: block;
+      margin-bottom: 5px;
+      color: var(--ink);
+      font-size: 0.82rem;
+    }
+
+    .mini-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .mini-item {
+      display: grid;
+      grid-template-columns: 96px 1fr;
+      gap: 14px;
+      padding: 13px;
+      background: rgba(255, 255, 255, 0.7);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+    }
+
+    .mini-item b {
+      color: var(--red);
+      font-family: var(--mono);
+      font-size: 0.76rem;
+      text-transform: uppercase;
+    }
+
+    .mini-item span {
+      color: var(--muted);
+    }
+
+    .transfer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .transfer {
+      padding: 18px;
+      color: #f8faf7;
+      background: var(--black);
+      border-radius: 8px;
+      min-height: 160px;
+    }
+
+    .transfer:nth-child(2) {
+      background: var(--blue);
+    }
+
+    .transfer:nth-child(3) {
+      background: var(--red);
+    }
+
+    .transfer:nth-child(4) {
+      background: var(--teal);
+    }
+
+    .transfer .big {
+      display: block;
+      margin: 8px 0;
+      font-family: var(--display);
+      font-size: 2.15rem;
+      font-weight: 800;
+      line-height: 1;
+    }
+
+    .transfer p {
+      margin: 0;
+      color: rgba(248, 250, 247, 0.82);
+      font-size: 0.92rem;
+    }
+
+    .footer {
+      margin-top: 80px;
+      padding: 32px 0 44px;
+      border-top: 2px solid var(--line-strong);
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 0.75rem;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    @media (max-width: 980px) {
+      .topbar {
+        position: static;
+        color: var(--ink);
+        background: var(--paper);
+        border-bottom: 1px solid var(--line);
+        backdrop-filter: none;
+      }
+
+      .nav a {
+        color: var(--muted);
+      }
+
+      .hero {
+        min-height: auto;
+        padding-top: 60px;
+      }
+
+      .hero-inner,
+      .manifesto,
+      .teaser-heading,
+      .section-header,
+      .split,
+      .evolution-shell {
+        grid-template-columns: 1fr;
+      }
+
+      .hero h1 {
+        font-size: 4.1rem;
+      }
+
+      .results-grid,
+      .method-grid,
+      .model-gallery,
+      .transfer-grid,
+      .evolution-footnotes {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 680px) {
+      main {
+        width: min(100% - 24px, 1160px);
+      }
+
+      .topbar {
+        padding: 12px;
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav {
+        justify-content: flex-start;
+      }
+
+      .hero {
+        padding: 36px 12px 34px;
+      }
+
+      .hero h1 {
+        font-size: 3.1rem;
+      }
+
+      .hero-subtitle {
+        font-size: 1.08rem;
+      }
+
+      h2 {
+        font-size: 2rem;
+      }
+
+      .results-grid,
+      .method-grid,
+      .model-gallery,
+      .transfer-grid,
+      .evolution-footnotes,
+      .steps {
+        grid-template-columns: 1fr;
+      }
+
+      .ledger-row,
+      .mini-item,
+      .detail-metrics,
+      .chart-caption {
+        grid-template-columns: 1fr;
+      }
+
+      .chart-toolbar,
+      .chart-caption {
+        flex-direction: column;
+      }
+
+      .teaser-showcase {
+        margin-top: 12px;
+        padding: 12px;
+      }
+
+      .teaser-figure {
+        padding: 8px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar" aria-label="Page navigation">
+    <a class="brandmark" href="#top">SkillOpt</a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#idea">Idea</a>
+      <a href="#method">Method</a>
+      <a href="#results">Results</a>
+      <a href="#ablations">Ablations</a>
+      <a href="#evolution">Evolution</a>
+      <a href="#transfer">Transfer</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="top">
+    <div class="hero-inner">
+      <div>
+        <span class="kicker">Text-space optimization for frozen agents</span>
+        <h1>SkillOpt</h1>
+        <p class="hero-subtitle">
+          Executive Strategy for Self-Evolving Agent Skills. SkillOpt treats a compact
+          natural-language skill document as the trainable state of a frozen language
+          agent, then learns that document through rollouts, reflection, bounded edits,
+          and held-out validation gates.
+        </p>
+        <div class="hero-actions" aria-label="Primary links">
+          <a class="button primary" href="#idea">Core Idea</a>
+          <a class="button secondary" href="#method">Method</a>
+          <a class="button secondary" href="#results">View Results</a>
+        </div>
+      </div>
+
+      <aside class="hero-ledger" aria-label="Key numbers">
+        <div class="ledger-row">
+          <span class="ledger-label">Paper-reported avg gain</span>
+          <span class="ledger-value">+21.5</span>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-label">Direct-chat benchmarks</span>
+          <span class="ledger-value">6</span>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-label">Best measured result</span>
+          <span class="ledger-value">5/6</span>
+        </div>
+        <div class="ledger-row">
+          <span class="ledger-label">Deployment artifact</span>
+          <span class="ledger-value">best_skill.md</span>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <main>
+    <section class="teaser-showcase video-showcase" aria-labelledby="video-title">
+      <div class="teaser-heading">
+        <span>Project Video</span>
+        <div>
+          <h2 id="video-title">SkillOpt in motion.</h2>
+          <p class="section-lede">
+            A short visual overview of how SkillOpt treats natural-language skills
+            as trainable artifacts: roll out, reflect, edit, validate, and export.
+          </p>
+        </div>
+      </div>
+      <figure class="video-frame">
+        <video controls preload="metadata" playsinline poster="skillopt-assets/teaser-1.png">
+          <source src="skillopt-assets/skillopt_teaser.mp4" type="video/mp4">
+          Your browser does not support the video tag.
+        </video>
+      </figure>
+      <p class="teaser-caption">
+        Promotional video for the SkillOpt project page. The static paper teaser is shown below for high-resolution inspection.
+      </p>
+    </section>
+
+    <section class="teaser-showcase" aria-labelledby="teaser-title">
+      <div class="teaser-heading">
+        <span>Paper Teaser</span>
+        <div>
+          <h2 id="teaser-title">The core loop at a glance.</h2>
+          <p class="section-lede">
+            The teaser is shown as a standalone figure so the SkillOpt training loop
+            remains readable: rollout evidence, optimizer-side reflection, bounded
+            skill edits, validation gating, and the exported reusable skill.
+          </p>
+        </div>
+      </div>
+      <figure class="teaser-figure">
+        <img src="skillopt-assets/teaser-1.png" alt="SkillOpt teaser figure showing the target model, optimizer model, bounded edits, validation gate, and exported best skill.">
+      </figure>
+      <p class="teaser-caption">
+        Figure from the SkillOpt paper. On small screens, the figure area scrolls horizontally to preserve the original details.
+      </p>
+    </section>
+
+    <section class="section" id="idea">
+      <div class="section-header">
+        <div class="section-eyebrow">01 / Core Idea</div>
+        <div>
+          <h2>Train the procedure, not the weights.</h2>
+          <p class="section-lede">
+            SkillOpt makes the skill document itself the optimization target. The
+            target model, backend, and harness stay fixed; the procedure that guides
+            evidence gathering, tool use, verification, and output formatting evolves.
+          </p>
+        </div>
+      </div>
+
+      <div class="manifesto">
+        <article class="statement">
+          <h3>A skill is external state for an agent.</h3>
+          <p>
+            Instead of fine-tuning a model or hand-maintaining prompts, SkillOpt runs
+            the frozen agent on scored batches, asks a separate optimizer model to
+            propose structured edits, and accepts a candidate only when validation
+            performance improves.
+          </p>
+          <div class="chip-row">
+            <span class="chip">Frozen target model</span>
+            <span class="chip">Optimizer model</span>
+            <span class="chip">Add / delete / replace edits</span>
+            <span class="chip">Held-out gate</span>
+          </div>
+        </article>
+
+        <div class="steps" aria-label="Optimization loop summary">
+          <div class="step">
+            <strong>Rollout</strong>
+            <p>The student executes tasks with the current skill and records scored trajectories.</p>
+          </div>
+          <div class="step">
+            <strong>Reflect</strong>
+            <p>The optimizer analyzes success and failure minibatches to find reusable procedures.</p>
+          </div>
+          <div class="step">
+            <strong>Edit</strong>
+            <p>Candidate add, delete, and replace operations are merged and ranked under a budget.</p>
+          </div>
+          <div class="step">
+            <strong>Gate</strong>
+            <p>The candidate skill is kept only if it improves held-out selection performance.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="method">
+      <div class="section-header">
+        <div class="section-eyebrow">02 / Method</div>
+        <div>
+          <h2>A training loop for natural-language skills.</h2>
+          <p class="section-lede">
+            The loop deliberately mirrors a learning algorithm: rollout evidence acts
+            like a forward pass, reflection acts like a language-level backward pass,
+            and the textual learning rate bounds how far the skill can move.
+          </p>
+        </div>
+      </div>
+
+      <div class="method-grid">
+        <article class="panel accent-blue">
+          <h3>Evidence</h3>
+          <p>Rollout batches capture messages, tool calls, verifier feedback, task metadata, and final scores.</p>
+        </article>
+        <article class="panel accent-red">
+          <h3>Minibatches</h3>
+          <p>Failures and successes are reflected separately so edits correct recurring errors while preserving working behavior.</p>
+        </article>
+        <article class="panel accent-gold">
+          <h3>Bounded Edits</h3>
+          <p>An edit budget functions as a textual learning rate, preventing useful rules from being overwritten by broad rewrites.</p>
+        </article>
+        <article class="panel accent-green">
+          <h3>Memory</h3>
+          <p>Rejected edits, slow update, and optimizer-side meta skill provide longer-horizon feedback without bloating deployment.</p>
+        </article>
+      </div>
+
+      <figure class="figure-frame">
+        <img src="skillopt-assets/pipeline-1.png" alt="SkillOpt pipeline showing rollout, reflection, bounded edits, validation gate, slow update, and meta skill.">
+        <figcaption class="caption">
+          SkillOpt pipeline from the paper. The frozen target model executes with the current skill; the optimizer model proposes bounded edits; held-out validation decides whether the candidate becomes the new current skill.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="results">
+      <div class="section-header">
+        <div class="section-eyebrow">03 / Main Results</div>
+        <div>
+          <h2>SkillOpt improves GPT and Qwen students.</h2>
+          <p class="section-lede">
+            Direct-chat results are reported for seven target models, not only
+            GPT-5.5. The cross-model view below averages the six benchmark scores
+            in the main paper table, comparing no-skill execution with the final
+            SkillOpt skill for each student.
+          </p>
+        </div>
+      </div>
+
+      <div class="results-grid">
+        <article class="result-card featured">
+          <h3>Covered students</h3>
+          <span class="metric">7</span>
+          <p>GPT-5.5, GPT-5.4 family, GPT-5.2, and two Qwen targets in direct chat.</p>
+        </article>
+        <article class="result-card">
+          <h3>Largest average lift</h3>
+          <span class="metric">+24.9</span>
+          <p>GPT-5.4-nano gains the most on average, showing strong benefit for weaker students.</p>
+        </article>
+        <article class="result-card">
+          <h3>Largest single lift</h3>
+          <span class="metric">+50.7</span>
+          <p>Qwen3.5-4B on ALFWorld, where the optimized skill turns procedural memory into a large gain.</p>
+        </article>
+      </div>
+
+      <div class="model-gallery" aria-label="Average direct-chat gains by student model">
+        <article class="model-card highlight">
+          <strong>GPT-5.5</strong>
+          <div class="score-pair"><span>No skill<b>58.8</b></span><span>SkillOpt<b>82.3</b></span></div>
+          <div class="gain-meter"><i style="--w: 94%;"></i></div>
+          <span class="gain-label">+23.5</span>
+        </article>
+        <article class="model-card">
+          <strong>GPT-5.4</strong>
+          <div class="score-pair"><span>No skill<b>59.7</b></span><span>SkillOpt<b>72.4</b></span></div>
+          <div class="gain-meter"><i style="--w: 51%;"></i></div>
+          <span class="gain-label">+12.8</span>
+        </article>
+        <article class="model-card">
+          <strong>GPT-5.4-mini</strong>
+          <div class="score-pair"><span>No skill<b>51.1</b></span><span>SkillOpt<b>63.8</b></span></div>
+          <div class="gain-meter"><i style="--w: 51%;"></i></div>
+          <span class="gain-label">+12.7</span>
+        </article>
+        <article class="model-card highlight">
+          <strong>GPT-5.4-nano</strong>
+          <div class="score-pair"><span>No skill<b>32.4</b></span><span>SkillOpt<b>57.4</b></span></div>
+          <div class="gain-meter"><i style="--w: 100%;"></i></div>
+          <span class="gain-label">+24.9</span>
+        </article>
+        <article class="model-card">
+          <strong>GPT-5.2</strong>
+          <div class="score-pair"><span>No skill<b>51.3</b></span><span>SkillOpt<b>67.9</b></span></div>
+          <div class="gain-meter"><i style="--w: 67%;"></i></div>
+          <span class="gain-label">+16.6</span>
+        </article>
+        <article class="model-card highlight">
+          <strong>Qwen3.5-4B</strong>
+          <div class="score-pair"><span>No skill<b>38.6</b></span><span>SkillOpt<b>57.9</b></span></div>
+          <div class="gain-meter"><i style="--w: 77%;"></i></div>
+          <span class="gain-label">+19.2</span>
+        </article>
+        <article class="model-card">
+          <strong>Qwen3.6-35B-A3B</strong>
+          <div class="score-pair"><span>No skill<b>55.9</b></span><span>SkillOpt<b>65.0</b></span></div>
+          <div class="gain-meter"><i style="--w: 37%;"></i></div>
+          <span class="gain-label">+9.1</span>
+        </article>
+      </div>
+
+      <p class="result-note">
+        Values are six-benchmark direct-chat averages computed from the main result matrix. Bars are scaled by average gain over no skill.
+      </p>
+
+      <div class="table-wrap" style="margin-top: 16px;">
+        <table aria-label="Direct chat gain heatmap by model and benchmark">
+          <thead>
+            <tr>
+              <th>Student model</th>
+              <th class="num">SearchQA</th>
+              <th class="num">Sheet</th>
+              <th class="num">Office</th>
+              <th class="num">DocVQA</th>
+              <th class="num">LiveMath</th>
+              <th class="num">ALFWorld</th>
+              <th class="num">Avg gain</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>GPT-5.5</td>
+              <td class="num heat" style="--heat: 19;">+9.6</td>
+              <td class="num heat" style="--heat: 77;">+38.9</td>
+              <td class="num heat" style="--heat: 77;">+39.0</td>
+              <td class="num heat" style="--heat: 24;">+12.4</td>
+              <td class="num heat" style="--heat: 58;">+29.3</td>
+              <td class="num heat" style="--heat: 23;">+11.9</td>
+              <td class="num heat-avg">+23.5</td>
+            </tr>
+            <tr>
+              <td>GPT-5.4</td>
+              <td class="num heat" style="--heat: 12;">+6.2</td>
+              <td class="num heat" style="--heat: 42;">+21.1</td>
+              <td class="num heat" style="--heat: 25;">+12.8</td>
+              <td class="num heat" style="--heat: 27;">+13.6</td>
+              <td class="num heat" style="--heat: 14;">+7.2</td>
+              <td class="num heat" style="--heat: 31;">+15.6</td>
+              <td class="num heat-avg">+12.8</td>
+            </tr>
+            <tr>
+              <td>GPT-5.4-mini</td>
+              <td class="num heat" style="--heat: 8;">+4.3</td>
+              <td class="num heat" style="--heat: 22;">+11.4</td>
+              <td class="num heat" style="--heat: 53;">+26.7</td>
+              <td class="num heat" style="--heat: 33;">+16.5</td>
+              <td class="num heat" style="--heat: 9;">+4.8</td>
+              <td class="num heat" style="--heat: 25;">+12.7</td>
+              <td class="num heat-avg">+12.7</td>
+            </tr>
+            <tr>
+              <td>GPT-5.4-nano</td>
+              <td class="num heat" style="--heat: 37;">+19.0</td>
+              <td class="num heat" style="--heat: 16;">+8.2</td>
+              <td class="num heat" style="--heat: 66;">+33.7</td>
+              <td class="num heat" style="--heat: 97;">+49.4</td>
+              <td class="num heat" style="--heat: 8;">+4.0</td>
+              <td class="num heat" style="--heat: 69;">+35.1</td>
+              <td class="num heat-avg">+24.9</td>
+            </tr>
+            <tr>
+              <td>GPT-5.2</td>
+              <td class="num heat" style="--heat: 22;">+11.2</td>
+              <td class="num heat" style="--heat: 37;">+18.9</td>
+              <td class="num heat" style="--heat: 42;">+21.5</td>
+              <td class="num heat" style="--heat: 33;">+16.5</td>
+              <td class="num heat" style="--heat: 30;">+15.2</td>
+              <td class="num heat" style="--heat: 32;">+16.4</td>
+              <td class="num heat-avg">+16.6</td>
+            </tr>
+            <tr>
+              <td>Qwen3.5-4B</td>
+              <td class="num heat" style="--heat: 6;">+3.1</td>
+              <td class="num heat" style="--heat: 29;">+14.6</td>
+              <td class="num heat" style="--heat: 30;">+15.2</td>
+              <td class="num heat" style="--heat: 4;">+2.1</td>
+              <td class="num heat" style="--heat: 58;">+29.6</td>
+              <td class="num heat" style="--heat: 100;">+50.7</td>
+              <td class="num heat-avg">+19.2</td>
+            </tr>
+            <tr>
+              <td>Qwen3.6-35B-A3B</td>
+              <td class="num heat" style="--heat: 15;">+7.6</td>
+              <td class="num heat" style="--heat: 18;">+9.3</td>
+              <td class="num heat" style="--heat: 2;">+1.2</td>
+              <td class="num heat" style="--heat: 7;">+3.8</td>
+              <td class="num heat" style="--heat: 21;">+10.4</td>
+              <td class="num heat" style="--heat: 44;">+22.4</td>
+              <td class="num heat-avg">+9.1</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="table-wrap" style="margin-top: 16px;">
+        <table aria-label="GPT-5.5 direct chat benchmark results">
+          <thead>
+            <tr>
+              <th>Benchmark</th>
+              <th class="num">No skill</th>
+              <th class="num">Best non-SkillOpt baseline</th>
+              <th class="num">SkillOpt</th>
+              <th class="num">Gain</th>
+              <th>SkillOpt score</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SearchQA</td>
+              <td class="num">77.7</td>
+              <td class="num">84.8</td>
+              <td class="num"><strong>87.3</strong></td>
+              <td class="num gain">+9.6</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 87.3%;"></div></div></td>
+            </tr>
+            <tr>
+              <td>SpreadsheetBench</td>
+              <td class="num">41.8</td>
+              <td class="num">73.6</td>
+              <td class="num"><strong>80.7</strong></td>
+              <td class="num gain">+38.9</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 80.7%;"></div></div></td>
+            </tr>
+            <tr>
+              <td>OfficeQA</td>
+              <td class="num">33.1</td>
+              <td class="num">66.9</td>
+              <td class="num"><strong>72.1</strong></td>
+              <td class="num gain">+39.0</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 72.1%;"></div></div></td>
+            </tr>
+            <tr>
+              <td>DocVQA</td>
+              <td class="num">78.8</td>
+              <td class="num">90.6</td>
+              <td class="num"><strong>91.2</strong></td>
+              <td class="num gain">+12.4</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 91.2%;"></div></div></td>
+            </tr>
+            <tr>
+              <td>LiveMathBench</td>
+              <td class="num">37.6</td>
+              <td class="num">52.0</td>
+              <td class="num"><strong>66.9</strong></td>
+              <td class="num gain">+29.3</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 66.9%;"></div></div></td>
+            </tr>
+            <tr>
+              <td>ALFWorld</td>
+              <td class="num">83.6</td>
+              <td class="num">93.3</td>
+              <td class="num"><strong>95.5</strong></td>
+              <td class="num gain">+11.9</td>
+              <td class="bar-cell"><div class="bar-track"><div class="bar" style="width: 95.5%;"></div></div></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="split" style="margin-top: 16px;">
+        <article class="panel">
+          <h3>Codex harness</h3>
+          <p>With GPT-5.5 in a Codex-style execution harness, SkillOpt reaches 85.0 on SpreadsheetBench and 78.4 on LiveMathBench, outperforming no skill by +57.5 and +28.0 points respectively.</p>
+        </article>
+        <article class="panel">
+          <h3>Claude Code harness</h3>
+          <p>In the Claude Code-style harness, SkillOpt reaches 80.4 on SpreadsheetBench and 71.5 on OfficeQA, remaining stronger than EvoSkill in the reported harness block.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" id="ablations">
+      <div class="section-header">
+        <div class="section-eyebrow">04 / Ablations</div>
+        <div>
+          <h2>The controls are doing real work.</h2>
+          <p class="section-lede">
+            The paper isolates the optimizer components that keep skill learning stable:
+            enough evidence, bounded textual updates, rejected-edit feedback, slow
+            update, and optimizer-side memory.
+          </p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="table-wrap">
+          <table aria-label="Component ablations">
+            <thead>
+              <tr>
+                <th>Component</th>
+                <th>Setting</th>
+                <th class="num">SearchQA</th>
+                <th class="num">Spreadsheet</th>
+                <th class="num">LiveMath</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Learning rate</td>
+                <td>lr=4 default</td>
+                <td class="num"><strong>87.1</strong></td>
+                <td class="num"><strong>77.5</strong></td>
+                <td class="num"><strong>61.3</strong></td>
+              </tr>
+              <tr>
+                <td>Learning rate</td>
+                <td>without lr</td>
+                <td class="num">84.6</td>
+                <td class="num">75.7</td>
+                <td class="num">57.3</td>
+              </tr>
+              <tr>
+                <td>Rejected buffer</td>
+                <td>with buffer</td>
+                <td class="num"><strong>87.1</strong></td>
+                <td class="num"><strong>77.5</strong></td>
+                <td class="num"><strong>61.3</strong></td>
+              </tr>
+              <tr>
+                <td>Rejected buffer</td>
+                <td>without buffer</td>
+                <td class="num">85.5</td>
+                <td class="num">72.9</td>
+                <td class="num">58.9</td>
+              </tr>
+              <tr>
+                <td>Update memory</td>
+                <td>meta skill + slow update</td>
+                <td class="num"><strong>87.1</strong></td>
+                <td class="num"><strong>77.5</strong></td>
+                <td class="num"><strong>61.3</strong></td>
+              </tr>
+              <tr>
+                <td>Update memory</td>
+                <td>without both</td>
+                <td class="num">86.3</td>
+                <td class="num">55.0</td>
+                <td class="num">59.7</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <article class="panel">
+          <h3>What the ablations say</h3>
+          <div class="mini-list">
+            <div class="mini-item">
+              <b>Bounded</b>
+              <span>Textual learning rates prevent destructive rewrites while keeping enough plasticity to learn new procedures.</span>
+            </div>
+            <div class="mini-item">
+              <b>Gated</b>
+              <span>Held-out selection turns reflection into propose-and-test optimization rather than unconditional self-editing.</span>
+            </div>
+            <div class="mini-item">
+              <b>Buffered</b>
+              <span>Rejected edits become negative feedback, helping the optimizer avoid repeating harmful directions.</span>
+            </div>
+          </div>
+        </article>
+      </div>
+
+      <figure class="figure-frame">
+        <img src="skillopt-assets/epoch-trends-1.png" alt="Epoch checkpoint trends for SpreadsheetBench, SearchQA, and LiveMath.">
+        <figcaption class="caption">
+          Epoch checkpoint trends from the paper. Selection-best checkpoints are compared with train rollout score and unseen test performance.
+        </figcaption>
+      </figure>
+    </section>
+
+    <section class="section" id="evolution">
+      <div class="section-header">
+        <div class="section-eyebrow">05 / Skill Evolution</div>
+        <div>
+          <h2>A typical run turns failures into concrete operating rules.</h2>
+          <p class="section-lede">
+            This ALFWorld run uses GPT-5.5 as the teacher and GPT-5.4-mini as the
+            frozen student. The plot tracks train rollout and held-out selection
+            scores; hover or focus a point to inspect the skill edit proposed at
+            that stage.
+          </p>
+        </div>
+      </div>
+
+      <div class="evolution-shell">
+        <article class="evolution-chart" aria-label="ALFWorld skill evolution chart">
+          <div class="chart-toolbar">
+            <span>ALFWorld / train-sel evolution</span>
+            <div class="chart-legend" aria-label="Chart legend">
+              <span class="legend-item" style="--legend: var(--teal)">Train rollout</span>
+              <span class="legend-item" style="--legend: var(--blue)">Selection gate</span>
+            </div>
+          </div>
+          <div class="chart-scroller">
+            <svg class="skill-chart" viewBox="0 0 790 340" role="img" aria-labelledby="evolution-chart-title evolution-chart-desc">
+              <title id="evolution-chart-title">ALFWorld skill evolution scores</title>
+              <desc id="evolution-chart-desc">Selection score rises from 68.6 percent to 81.4 percent, while rejected edits are visible as downward candidate points.</desc>
+              <line class="chart-grid" x1="70" y1="60" x2="730" y2="60"></line>
+              <line class="chart-grid" x1="70" y1="115" x2="730" y2="115"></line>
+              <line class="chart-grid" x1="70" y1="170" x2="730" y2="170"></line>
+              <line class="chart-grid" x1="70" y1="225" x2="730" y2="225"></line>
+              <line class="chart-grid" x1="70" y1="280" x2="730" y2="280"></line>
+              <line class="chart-axis" x1="70" y1="280" x2="730" y2="280"></line>
+              <line class="chart-axis" x1="70" y1="60" x2="70" y2="280"></line>
+              <text class="chart-label" x="25" y="64">85%</text>
+              <text class="chart-label" x="25" y="119">80%</text>
+              <text class="chart-label" x="25" y="174">75%</text>
+              <text class="chart-label" x="25" y="229">70%</text>
+              <text class="chart-label" x="25" y="284">65%</text>
+              <text class="chart-label" x="50" y="318">base</text>
+              <text class="chart-label" x="181" y="318">step 1</text>
+              <text class="chart-label" x="311" y="318">step 2</text>
+              <text class="chart-label" x="441" y="318">step 3</text>
+              <text class="chart-label" x="563" y="318">slow</text>
+              <text class="chart-label" x="701" y="318">step 4</text>
+              <polyline class="line-selection" points="70,240.7 200,201.4 330,162.1 460,232.9 590,99.3 720,146.4"></polyline>
+              <polyline class="line-train" points="200,238.8 330,156.3 460,142.5 590,115 720,87.5"></polyline>
+              <g class="chart-point" data-index="0" data-state="baseline" tabindex="0" role="button" aria-label="Baseline selection score 68.6 percent">
+                <circle class="hit" cx="70" cy="240.7" r="12"></circle>
+                <circle cx="70" cy="240.7" r="5"></circle>
+              </g>
+              <g class="chart-point" data-index="1" data-state="accepted" tabindex="0" role="button" aria-label="Step 1 accepted, selection score 72.1 percent">
+                <circle class="hit" cx="200" cy="201.4" r="12"></circle>
+                <circle cx="200" cy="201.4" r="5"></circle>
+                <circle cx="200" cy="238.8" r="4"></circle>
+              </g>
+              <g class="chart-point" data-index="2" data-state="accepted" tabindex="0" role="button" aria-label="Step 2 accepted, selection score 75.7 percent">
+                <circle class="hit" cx="330" cy="162.1" r="12"></circle>
+                <circle cx="330" cy="162.1" r="5"></circle>
+                <circle cx="330" cy="156.3" r="4"></circle>
+              </g>
+              <g class="chart-point" data-index="3" data-state="rejected" tabindex="0" role="button" aria-label="Step 3 rejected, candidate selection score 69.3 percent">
+                <circle class="hit" cx="460" cy="232.9" r="12"></circle>
+                <circle cx="460" cy="232.9" r="5"></circle>
+                <circle cx="460" cy="142.5" r="4"></circle>
+              </g>
+              <g class="chart-point" data-index="4" data-state="slow" tabindex="0" role="button" aria-label="Slow update accepted, selection score 81.4 percent">
+                <circle class="hit" cx="590" cy="99.3" r="12"></circle>
+                <circle cx="590" cy="99.3" r="5"></circle>
+                <circle cx="590" cy="115" r="4"></circle>
+              </g>
+              <g class="chart-point" data-index="5" data-state="rejected" tabindex="0" role="button" aria-label="Step 4 rejected, candidate selection score 77.1 percent">
+                <circle class="hit" cx="720" cy="146.4" r="12"></circle>
+                <circle cx="720" cy="146.4" r="5"></circle>
+                <circle cx="720" cy="87.5" r="4"></circle>
+              </g>
+            </svg>
+          </div>
+          <div class="chart-caption">
+            <span>Accepted edits become the current skill only after held-out selection improves.</span>
+            <span>Step 3 is rescued by a slow update; Step 4 trains higher but fails selection.</span>
+          </div>
+        </article>
+
+        <aside class="evolution-detail" aria-live="polite">
+          <div class="detail-kicker">
+            <span id="evo-step">Slow update</span>
+            <span class="detail-badge" id="evo-status">Accepted</span>
+          </div>
+          <h3 id="evo-title">Epoch 3 slow update</h3>
+          <div class="detail-metrics">
+            <div class="detail-metric">
+              <span>Train rollout</span>
+              <b id="evo-train">80.0%</b>
+            </div>
+            <div class="detail-metric">
+              <span>Selection gate</span>
+              <b id="evo-selection">81.4%</b>
+            </div>
+          </div>
+          <p class="detail-summary" id="evo-summary">
+            Longitudinal comparison found no regressions and three improvements, so a broader search-memory update became the new best skill.
+          </p>
+          <ul class="detail-edits" id="evo-edits">
+            <li>Count any generic target receptacle instance as valid.</li>
+            <li>Keep a strict numbered searched set and do not re-check observed locations.</li>
+            <li>Broaden search after several misses in one location type.</li>
+          </ul>
+        </aside>
+      </div>
+
+      <div class="evolution-footnotes">
+        <div class="evolution-note">
+          <b>Run setup</b>
+          Student: GPT-5.4-mini. Teacher: GPT-5.5. The skill starts from a compact ALFWorld instruction file and is edited in text space.
+        </div>
+        <div class="evolution-note">
+          <b>Selection rule</b>
+          Candidate edits are accepted only when held-out selection improves the current best score.
+        </div>
+        <div class="evolution-note">
+          <b>Outcome</b>
+          The selected skill improves final ALFWorld test hard score from 70.9% to 85.8%.
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="transfer">
+      <div class="section-header">
+        <div class="section-eyebrow">06 / Transfer</div>
+        <div>
+          <h2>The exported skill behaves like a reusable artifact.</h2>
+          <p class="section-lede">
+            SkillOpt exports a compact <code>best_skill.md</code>. The paper tests
+            whether that artifact transfers across model sizes, execution harnesses,
+            and nearby benchmarks without further target-side optimization.
+          </p>
+        </div>
+      </div>
+
+      <div class="transfer-grid">
+        <article class="transfer">
+          <span>Cross-model</span>
+          <span class="big">+15.2</span>
+          <p>GPT-5.4 LiveMath skill transferred to GPT-5.4-nano on LiveMathBench.</p>
+        </article>
+        <article class="transfer">
+          <span>Cross-harness</span>
+          <span class="big">+31.8</span>
+          <p>Codex-trained SpreadsheetBench skill transferred into Claude Code.</p>
+        </article>
+        <article class="transfer">
+          <span>Self-teaching</span>
+          <span class="big">+10.4</span>
+          <p>GPT-5.4-nano self-teacher improved SpreadsheetBench over baseline.</p>
+        </article>
+        <article class="transfer">
+          <span>Deployment</span>
+          <span class="big">1 file</span>
+          <p>The target model consumes only the final skill, not optimizer memory.</p>
+        </article>
+      </div>
+
+      <div class="callout">
+        A stronger optimizer model gives the largest gains, but the loop is not merely
+        distillation from a stronger model. Even matched target-as-optimizer settings
+        can discover useful edits when the update is constrained, buffered, and
+        validated.
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>SkillOpt: Executive Strategy for Self-Evolving Agent Skills</span>
+      <span>Project page for the SkillOpt paper.</span>
+    </footer>
+  </main>
+  <script>
+    const evolutionSteps = [
+      {
+        step: "Baseline",
+        status: "Initial",
+        title: "Initial ALFWorld skill",
+        train: "-",
+        selection: "68.6%",
+        summary: "The starting skill solves many direct cases, but failures cluster around repeated search, loose object matching, and unfinished pick-two progress.",
+        edits: [
+          "Generic search and delivery rules, with no persistent numbered-location memory.",
+          "Selection baseline before any teacher edit is applied.",
+          "The run uses this score as the acceptance floor for future candidates."
+        ]
+      },
+      {
+        step: "Step 1",
+        status: "Accepted",
+        title: "Search memory and exact targets",
+        train: "68.8%",
+        selection: "72.1%",
+        summary: "The first accepted edit fixes recurring navigation loops and makes object matching stricter.",
+        edits: [
+          "Add a persistent checklist for observed receptacles, surfaces, containers, and appliances.",
+          "Use semantic search priors, then broaden without revisiting checked locations.",
+          "Require exact object nouns; do not treat similar items as substitutes."
+        ]
+      },
+      {
+        step: "Step 2",
+        status: "Accepted",
+        title: "Delivery, transforms, and pick-two bookkeeping",
+        train: "76.3%",
+        selection: "75.7%",
+        summary: "The second accepted edit turns several procedural hints into executable rules for ALFWorld task types.",
+        edits: [
+          "Open the target receptacle if needed and place the held goal object directly.",
+          "Treat clean, heat, and cool adjectives as mandatory transformations.",
+          "For pick-two tasks, place one object, count progress, then fetch only the remaining instance."
+        ]
+      },
+      {
+        step: "Step 3",
+        status: "Rejected",
+        title: "Candidate overfits search bookkeeping",
+        train: "77.5%",
+        selection: "69.3%",
+        summary: "The local train rollout improves, but held-out selection drops below the current best, so the candidate is rejected.",
+        edits: [
+          "Proposed a more executable search ledger in every search-oriented thought.",
+          "The gate prevents this narrower rewrite from replacing the stronger Step 2 skill.",
+          "Rejected-edit feedback is kept as negative evidence for future updates."
+        ]
+      },
+      {
+        step: "Slow update",
+        status: "Accepted",
+        title: "Epoch 3 slow update",
+        train: "80.0%",
+        selection: "81.4%",
+        summary: "Longitudinal comparison finds no regressions and three improvements, so a broader search-memory update becomes the new best skill.",
+        edits: [
+          "Count any generic target receptacle instance as valid.",
+          "Keep a strict numbered searched set and do not re-check observed locations.",
+          "Broaden search after several misses in one location type."
+        ]
+      },
+      {
+        step: "Step 4",
+        status: "Rejected",
+        title: "Higher train score, lower selection score",
+        train: "82.5%",
+        selection: "77.1%",
+        summary: "The final candidate looks better on the training batch but fails to beat the slow-update checkpoint on selection.",
+        edits: [
+          "Tried to make numbered-location memory even more explicit.",
+          "Added stronger failed-route marking after repeated impossible moves.",
+          "Selection rejects it, preserving the 81.4% slow-update best skill."
+        ]
+      }
+    ];
+
+    const pointNodes = document.querySelectorAll(".chart-point");
+    const detailFields = {
+      step: document.getElementById("evo-step"),
+      status: document.getElementById("evo-status"),
+      title: document.getElementById("evo-title"),
+      train: document.getElementById("evo-train"),
+      selection: document.getElementById("evo-selection"),
+      summary: document.getElementById("evo-summary"),
+      edits: document.getElementById("evo-edits")
+    };
+
+    function showEvolutionStep(index) {
+      const item = evolutionSteps[index];
+      if (!item || !detailFields.title) return;
+
+      detailFields.step.textContent = item.step;
+      detailFields.status.textContent = item.status;
+      detailFields.title.textContent = item.title;
+      detailFields.train.textContent = item.train;
+      detailFields.selection.textContent = item.selection;
+      detailFields.summary.textContent = item.summary;
+      detailFields.edits.innerHTML = "";
+
+      item.edits.forEach((edit) => {
+        const li = document.createElement("li");
+        li.textContent = edit;
+        detailFields.edits.appendChild(li);
+      });
+
+      pointNodes.forEach((node) => {
+        node.classList.toggle("is-active", Number(node.dataset.index) === index);
+      });
+    }
+
+    pointNodes.forEach((node) => {
+      const index = Number(node.dataset.index);
+      node.addEventListener("mouseenter", () => showEvolutionStep(index));
+      node.addEventListener("focus", () => showEvolutionStep(index));
+      node.addEventListener("click", () => showEvolutionStep(index));
+    });
+
+    showEvolutionStep(4);
+  </script>
+</body>
+</html>
