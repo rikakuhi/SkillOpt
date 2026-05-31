@@ -4,7 +4,37 @@
 
 [![Project Page](https://img.shields.io/badge/Project%20Page-SkillOpt-8dbb3c)](https://microsoft.github.io/SkillOpt/) [![Paper](https://img.shields.io/badge/Paper-arXiv-b31b1b)](https://arxiv.org/abs/2605.23904) [![Project Video](https://img.shields.io/badge/Project%20Video-Watch%20Demo-ff0000)](https://youtu.be/JUBMDTCiM0M) [![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/) [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-## 🎬 SkillOpt Demo Video
+---
+
+## Overview
+
+Modern agent skills are usually hand-crafted, generated one-shot by a strong
+LLM, or evolved through loosely controlled self-revision — none of which
+behaves like a deep-learning optimizer for the skill itself, and none of
+which reliably improves over its starting point under feedback.
+
+**SkillOpt treats the skill document as the trainable state of a frozen
+agent**, and trains it with the discipline that makes weight-space
+optimization reproducible. A separate optimizer model turns scored rollouts
+into bounded add / delete / replace edits on a single skill document; a
+candidate edit is accepted only when it strictly improves a held-out
+validation score. A textual learning-rate budget, a rejected-edit buffer,
+and an epoch-wise slow / meta update make skill training stable while
+adding **zero inference-time model calls** at deployment.
+
+The deployed artifact is a compact `best_skill.md` (typically 300–2,000
+tokens) that runs against the unchanged target model. Across **six
+benchmarks, seven target models, and three execution harnesses** (direct
+chat, Codex CLI, Claude Code CLI), SkillOpt is best or tied-best on **all
+52 evaluated (model, benchmark, harness) cells** and on GPT-5.5 lifts the
+average no-skill accuracy by **+23.5 points in direct chat, +24.8 inside
+the Codex agentic loop, and +19.1 inside Claude Code**. Optimized skill
+artifacts transfer across model scales, between Codex and Claude Code
+harnesses, and to nearby math benchmarks without further optimization.
+
+For the full method, ablations, and per-cell results see the [paper](https://arxiv.org/abs/2605.23904); for a visual walkthrough of the loop see the [project page](https://microsoft.github.io/SkillOpt/); for deeper API / backend / benchmark docs see [`docs/`](docs/).
+
+## 🎬 Demo Video
 
 https://github.com/user-attachments/assets/eb12d3bc-371c-467f-904d-91b61f339ed7
 
@@ -16,14 +46,16 @@ https://github.com/user-attachments/assets/eb12d3bc-371c-467f-904d-91b61f339ed7
 
 ## Install
 
-**Requirements:** Python 3.10+
+### Requirements
+
+- Python 3.10+
 
 ```bash
 git clone https://github.com/microsoft/SkillOpt.git
 cd SkillOpt
 pip install -e .
 
-# For ALFWorld benchmark (optional):
+# For the ALFWorld benchmark (optional):
 pip install -e ".[alfworld]"
 alfworld-download
 ```
@@ -36,7 +68,8 @@ cp .env.example .env
 source .env
 ```
 
-**Azure OpenAI** (recommended):
+#### Azure OpenAI *(recommended)*
+
 ```bash
 export AZURE_OPENAI_ENDPOINT="https://your-resource.openai.azure.com/"
 # Option 1: API key auth
@@ -45,73 +78,40 @@ export AZURE_OPENAI_API_KEY="your-key"
 export AZURE_OPENAI_AUTH_MODE="azure_cli"
 ```
 
-> **Note:** `AZURE_OPENAI_ENDPOINT` is required for all three modes (`api_key`, `azure_cli`,
-> `openai_compatible`). Without it, all LLM calls will fail.
+> **Note:** `AZURE_OPENAI_ENDPOINT` is required for all three modes (`api_key`, `azure_cli`, `openai_compatible`). Without it, all LLM calls will fail.
 
-**OpenAI-compatible endpoints**:
+#### OpenAI-compatible endpoints
+
 ```bash
 export AZURE_OPENAI_ENDPOINT="https://api.openai.com/v1"
 export AZURE_OPENAI_API_KEY="sk-..."
 export AZURE_OPENAI_AUTH_MODE="openai_compatible"
 ```
 
-This routes all calls through the plain OpenAI Python client (no Azure auth, no `api-version`
-header).
+This routes all calls through the plain OpenAI Python client (no Azure auth, no `api-version` header).
 
-> **Note:** SkillOpt reuses the `AZURE_OPENAI_*` env var names even in this mode — there is no
-> separate `OPENAI_API_KEY` knob.
+> **Note:** SkillOpt reuses the `AZURE_OPENAI_*` env var names even in this mode — there is no separate `OPENAI_API_KEY` knob.
 
-**Anthropic Claude**:
+#### Anthropic Claude
+
 ```bash
 export ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
-**Qwen (local vLLM)**:
+#### Qwen *(local vLLM)*
+
 ```bash
 export QWEN_CHAT_BASE_URL="http://localhost:8000/v1"
 export QWEN_CHAT_MODEL="Qwen/Qwen3.5-4B"
 ```
 
----
+#### MiniMax
 
-## Data Preparation
-
-SkillOpt expects data in a **split directory** with `train/`, `val/`, `test/` subdirectories, each containing a JSON file (e.g., `items.json`).
-
+```bash
+export MINIMAX_BASE_URL="https://api.minimax.io/v1"
+export MINIMAX_API_KEY="..."
+export MINIMAX_MODEL="MiniMax-M2.7"
 ```
-data/my_split/
-├── train/items.json
-├── val/items.json
-└── test/items.json
-```
-
-Each JSON file is an array of task items. The required fields depend on the benchmark. For example, SearchQA items look like:
-
-```json
-[
-  {
-    "id": "unique_item_id",
-    "question": "Who wrote the novel ...",
-    "context": "[DOC] relevant passage text ...",
-    "answers": ["expected answer"]
-  }
-]
-```
-
-See `skillopt/envs/<benchmark>/dataloader.py` for the exact format each benchmark expects.
-
-> **Note:** Benchmark datasets are not included in this repository. Prepare your own data following the format above.
-
-### Supported Benchmarks
-
-| Benchmark | Type | Config |
-|---|---|---|
-| SearchQA | QA | `configs/searchqa/default.yaml` |
-| ALFWorld | Embodied agent | `configs/alfworld/default.yaml` |
-| DocVQA | Document QA | `configs/docvqa/default.yaml` |
-| LiveMathematicianBench | Math | `configs/livemathematicianbench/default.yaml` |
-| SpreadsheetBench | Code generation | `configs/spreadsheetbench/default.yaml` |
-| OfficeQA | Tool-augmented QA | `configs/officeqa/default.yaml` |
 
 ---
 
@@ -181,8 +181,7 @@ python scripts/eval_only.py \
   --azure_openai_endpoint https://your-resource.openai.azure.com/
 ```
 
-To evaluate a skill produced by a training run, replace `--skill` with that
-run's best-skill path, for example `outputs/my_run/best_skill.md`.
+To evaluate a skill produced by your own training run, replace `--skill` with that run's best-skill path, for example `outputs/my_run/best_skill.md`.
 
 | Split | Description |
 |---|---|
@@ -193,7 +192,7 @@ run's best-skill path, for example `outputs/my_run/best_skill.md`.
 
 ### Output Structure
 
-Each run writes to a structured output directory:
+Each training run writes to a structured output directory:
 
 ```
 outputs/<run_name>/
@@ -209,26 +208,148 @@ outputs/<run_name>/
 
 Re-running the same command auto-resumes from the last completed step.
 
+### Pretrained Skill Artifacts
+
+The paper-aligned GPT-5.5 optimized skills are shipped in
+[`ckpt/<benchmark>/gpt5.5_skill.md`](ckpt/) (one per benchmark — SearchQA,
+ALFWorld, DocVQA, LiveMathematicianBench, OfficeQA, SpreadsheetBench). Use
+them with `scripts/eval_only.py` to evaluate the paper-aligned skills on a
+matching data split without re-running training. See [`ckpt/README.md`](ckpt/README.md)
+for the full per-benchmark command. This is the first artifact batch; we
+plan to continue uploading the remaining optimized skills and benchmark
+split manifests as they are cleaned and verified.
+
 ---
 
-## Community-contributed configs
+## Data Preparation
+
+### Directory layout
+
+SkillOpt expects data in a **split directory** with `train/`, `val/`, `test/` subdirectories, each containing a JSON file (e.g., `items.json`):
+
+```
+data/my_split/
+├── train/items.json
+├── val/items.json
+└── test/items.json
+```
+
+Each JSON file is an array of task items. The required fields depend on the benchmark. For example, SearchQA items look like:
+
+```json
+[
+  {
+    "id": "unique_item_id",
+    "question": "Who wrote the novel ...",
+    "context": "[DOC] relevant passage text ...",
+    "answers": ["expected answer"]
+  }
+]
+```
+
+See `skillopt/envs/<benchmark>/dataloader.py` for the exact format each benchmark expects.
+
+> **Note:** Most benchmark datasets are not included in this repository. Prepare your own data following the format above. The exact SearchQA split used in the paper is shipped at [`data/searchqa_id_split/`](data/searchqa_id_split) (400 train / 200 val / 1400 test). We are preparing the remaining benchmark split manifests for upload.
+
+### Supported Benchmarks
+
+| Benchmark | Type | Config |
+|---|---|---|
+| SearchQA | QA | `configs/searchqa/default.yaml` |
+| ALFWorld | Embodied agent | `configs/alfworld/default.yaml` |
+| DocVQA | Document QA | `configs/docvqa/default.yaml` |
+| LiveMathematicianBench | Math | `configs/livemathematicianbench/default.yaml` |
+| SpreadsheetBench | Code generation | `configs/spreadsheetbench/default.yaml` |
+| OfficeQA | Tool-augmented QA | `configs/officeqa/default.yaml` |
+
+---
+
+## Configuration
+
+### Default settings and paper-reproduction knobs
+
+`configs/_base_/default.yaml` is the single source of truth for SkillOpt's
+runtime knobs. Out of the box, every shipped benchmark config inherits
+from it and keeps the paper protocol visible: 4 epochs, rollout batch 40,
+reflection minibatch 8, textual learning rate 4 with cosine decay, strict
+hard validation gating, and slow-update + meta-skill enabled. The slow-update
+acceptance policy is now explicit because `main` has moved forward from
+the paper snapshot: the shipped `ckpt/` skills were produced with the gated
+semantics described in paper Section 3.6, while the current `main` default
+uses the post-submission force-accept behavior.
+
+### Slow-update acceptance mode
+
+The epoch-boundary slow / meta update can be applied two ways, controlled
+by `optimizer.slow_update_gate_with_selection`:
+
+```yaml
+optimizer:
+  slow_update_gate_with_selection: false   # current main default
+```
+
+- **`false`** *(current `main` default)*: force-accept. The
+  slow-update guidance is injected into both `current_skill` and
+  `best_skill` unconditionally at the epoch boundary. This is the newer
+  post-submission behavior on `main`.
+- **`true`** *(paper / shipped-skill reproduction)*: gated, matching paper
+  Section 3.6 verbatim. The slow-update candidate is evaluated on the
+  selection split and accepted only if it passes the same validation gate
+  as a step-level edit. Use this setting when re-running optimization to
+  match the paper protocol and the provenance of the shipped `ckpt/` skills.
+
+The trainer prints which mode is active at startup
+(`[slow update] acceptance=...`). See issue #22 for the discussion that
+led to the flag.
+
+### Gate metric (`hard` / `soft` / `mixed`)
+
+The validation gate compares candidate vs. current skills on the selection
+split using `gate_metric`:
+
+- **`hard`** *(default, paper)*: exact-match accuracy, strictly greater
+  than the current score is required.
+- **`soft`**: per-item soft / partial-credit score. Useful when the
+  selection split is small (e.g. ≤10 items) and the reward is continuous,
+  where the discrete hard gate often rejects every candidate.
+- **`mixed`**: weighted average, `(1 - w) * hard + w * soft`, with `w`
+  set by `gate_mixed_weight` (default `0.5`).
+
+Default is `hard`. Use the example config below to switch.
+
+### Community-contributed examples
 
 These are **not** default SkillOpt settings — they are reference configs
 contributed by users for specific scenarios. The paper-reported numbers
 were obtained with the default settings, not these.
 
-- **`configs/examples/soft_gate.yaml`** *(PR #25, contributed by
-  [@lvbaocheng](https://github.com/lvbaocheng))* — switches the
-  validation gate from exact-match (`hard`) to soft / partial-credit
-  (`soft` or `mixed`). Useful when the held-out **selection split is
-  small** (e.g. ≤ ~10 items) and the **reward is continuous**, where the
-  discrete hard gate often rejects every candidate and training stalls.
-  See the comment at the top of the file for details and when not to use
-  it.
+- **[`configs/examples/soft_gate.yaml`](configs/examples/soft_gate.yaml)**
+  *(PR #25, contributed by [@lvbaocheng](https://github.com/lvbaocheng))* —
+  switches `gate_metric` to `soft` (or `mixed`). See the comment at the
+  top of the file for when to use and when not to.
 
 ---
 
-## WebUI
+## Extensibility & WebUI
+
+### Adding a new backend
+
+A backend = a chat / exec target (e.g. `openai_chat`, `claude_chat`,
+`qwen_chat`, `minimax_chat`, `codex_exec`, `claude_code_exec`). See
+[`docs/guide/new-backend.md`](docs/guide/new-backend.md) for the full
+contract; in short you add a `skillopt/model/<name>_backend.py` module,
+register it in `skillopt/model/common.py` + `backend_config.py`, and wire
+it through the router in `skillopt/model/__init__.py`. `qwen_backend.py`
+and `minimax_backend.py` are good templates.
+
+### Adding a new benchmark
+
+A benchmark = a `skillopt/envs/<name>/` package with a `dataloader.py`, a
+`rollout.py`, and an `initial.md` seed skill. See
+[`docs/guide/new-benchmark.md`](docs/guide/new-benchmark.md) for the full
+contract; the simplest reference is `skillopt/envs/searchqa/`.
+
+### WebUI
 
 Launch the monitoring dashboard (optional):
 
@@ -242,11 +363,6 @@ python -m skillopt_webui.app
 | `--port` | 7860 | Server port |
 | `--host` | `0.0.0.0` | Bind address |
 | `--share` | off | Create a public Gradio share link |
-
-```bash
-# With public share link (useful for remote servers)
-python -m skillopt_webui.app --share
-```
 
 ---
 
