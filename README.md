@@ -30,7 +30,7 @@ chat, Codex CLI, Claude Code CLI), SkillOpt is best or tied-best on **all
 average no-skill accuracy by **+23.5 points in direct chat, +24.8 inside
 the Codex agentic loop, and +19.1 inside Claude Code**. Optimized skill
 artifacts transfer across model scales, between Codex and Claude Code
-harnesses, and to nearby math benchmarks without further optimization.
+harnesses, and to nearby benchmarks without further optimization.
 
 For the full method, ablations, and per-cell results see the [paper](https://arxiv.org/abs/2605.23904); for a visual walkthrough of the loop see the [project page](https://microsoft.github.io/SkillOpt/); for deeper API / backend / benchmark docs see [`docs/`](docs/).
 
