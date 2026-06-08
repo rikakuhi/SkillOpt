@@ -253,7 +253,12 @@ class CliBackend(Backend):
     def attempt(self, task: TaskRecord, skill: str, memory: str) -> str:
         prompt = (
             "You are completing a recurring task for a user. Apply the skill and "
-            "memory rules EXACTLY, including any output-format requirements.\n\n"
+            "memory rules EXACTLY, including any output-format requirements. If the "
+            "skill contains a 'Learned preferences' block, treat those rules as "
+            "HARD CONSTRAINTS that OVERRIDE anything earlier in the skill they "
+            "conflict with (e.g. an explicit length limit overrides 'be "
+            "exhaustive'). Satisfy every such constraint even at the cost of "
+            "brevity or detail.\n\n"
             f"# Skill\n{skill or '(none)'}\n\n# Memory\n{memory or '(none)'}\n\n"
             f"# Task\n{task.intent}\n\n{task.context_excerpt}\n\n"
             "Return ONLY the final answer text, nothing else."
@@ -319,11 +324,31 @@ class CliBackend(Backend):
                     part = part.strip()
                     if part:
                         crit[part] += 1
+
+        def _explain(c: str) -> str:
+            # translate an "op=arg" criterion into a plain-English requirement
+            if "=" in c:
+                op, _, arg = c.partition("=")
+                op = op.strip(); arg = arg.strip()
+                if op == "max_chars":
+                    return f"the ENTIRE response must be at most {arg} characters long"
+                if op == "min_chars":
+                    return f"the response must be at least {arg} characters long"
+                if op == "section_present":
+                    return f"the response must contain a section/heading titled '{arg}'"
+                if op == "regex":
+                    return f"the response must match the pattern /{arg}/ (e.g. include that label)"
+                if op == "contains":
+                    return f"the response must contain the text '{arg}'"
+                if op == "tool_called":
+                    return f"the agent must actually call the '{arg}' tool"
+            return c
+
         criteria_text = ""
         if crit:
             criteria_text = (
                 "\n# Exact criteria the outputs are FAILING (fix these directly)\n"
-                + "\n".join(f"- {c}  (failed {n}x)" for c, n in crit.most_common())
+                + "\n".join(f"- {_explain(c)}  [{c}, failed {n}x]" for c, n in crit.most_common())
             )
         prompt = (
             "You are SkillOpt's optimizer. The agent keeps failing the recurring "
@@ -332,12 +357,16 @@ class CliBackend(Backend):
             "GENERAL, reusable rule or preference (never task-specific, never an "
             "answer to a single task). If exact failing criteria are listed, your "
             "edits MUST make future outputs satisfy every one of them.\n"
+            "BE CONCRETE: quote the exact threshold, section name, or format from "
+            "the criteria verbatim in your rule (e.g. write 'keep the entire "
+            "response under 1200 characters', NOT 'respect length limits'). Vague "
+            "rules do not change behavior; specific numeric/structural rules do.\n"
             "IMPORTANT: your edits are APPENDED to a 'Learned preferences' block; "
             "you CANNOT delete the existing instructions above. If the current "
             f"{target} text conflicts with a criterion (e.g. it says 'be exhaustive' "
             "but outputs must be under a character limit), write an explicit, "
-            "forceful OVERRIDE rule that says it supersedes the conflicting "
-            "instruction. "
+            "forceful OVERRIDE rule stating it supersedes the conflicting "
+            "instruction, and put the hard requirement first.\n"
             'Return ONLY a JSON array: '
             '[{"op":"add|replace|delete","content":"<rule>","anchor":"<text to replace/delete, optional>","rationale":"<why>"}].\n\n'
             f"# Current {target}\n{cur_doc}\n"
@@ -381,14 +410,33 @@ class ClaudeCliBackend(CliBackend):
         self.claude_path = claude_path
 
     def _call(self, prompt: str, *, max_tokens: int = 1024) -> str:
-        cmd = [self.claude_path, "-p", "--output-format", "text"]
+        # Run ISOLATED: a clean temp cwd so the ambient project's CLAUDE.md /
+        # skills / tools do not leak into the optimizer/target call, no tools,
+        # and per-machine dynamic system-prompt sections excluded. Without this,
+        # `claude -p` answers with full Claude Code context and ignores our
+        # prompt (e.g. it lists the user's installed skills).
+        import tempfile
+        cmd = [
+            self.claude_path, "-p", "--output-format", "text",
+            "--disallowedTools", "*",
+            "--exclude-dynamic-system-prompt-sections",
+        ]
         if self.model:
             cmd += ["--model", self.model]
         cmd += ["--", prompt]
+        clean_cwd = tempfile.mkdtemp(prefix="skillopt_sleep_claude_")
         try:
-            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=self.timeout)
+            proc = subprocess.run(
+                cmd, capture_output=True, text=True, timeout=self.timeout, cwd=clean_cwd,
+            )
         except Exception:
             return ""
+        finally:
+            try:
+                import shutil
+                shutil.rmtree(clean_cwd, ignore_errors=True)
+            except Exception:
+                pass
         return (proc.stdout or "").strip()
 
 
