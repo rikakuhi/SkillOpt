@@ -93,6 +93,11 @@ def _register_builtins() -> None:
         _ENV_REGISTRY["swebench"] = SWEBenchAdapter
     except ImportError:
         pass
+    try:
+        from skillopt.envs.codespec.adapter import CodespecAdapter
+        _ENV_REGISTRY["codespec"] = CodespecAdapter
+    except ImportError:
+        pass
 
 
 def get_adapter(cfg: dict):
